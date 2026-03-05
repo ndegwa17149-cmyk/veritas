@@ -1,0 +1,62 @@
+{% extends 'frontend_app/base.html' %}
+
+{% block title %}Veritas – Public Assets{% endblock %}
+{% block meta %}
+<meta name="description" content="Browse public assets shared on the Veritas platform.">
+{% endblock %}
+
+{% block content %}
+  <header class="mb-4">
+    <h1 class="display-5">Public Assets</h1>
+    <p class="lead text-muted">Explore assets shared by the Veritas community.</p>
+  </header>
+
+  <section class="mb-5">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Our Mission</h2>
+        <p class="text-secondary">To empower individuals and teams by providing a transparent platform for sharing, discovering, and collaborating on valuable assets and ideas.</p>
+      </div>
+      <div class="col-md-6">
+        <h2>Our Vision</h2>
+        <p class="text-secondary">To become the leading hub where innovation meets integrity—fostering a global community built on trust, transparency, and collective growth.</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="assets" class="row g-4">
+    <!-- assets will be injected here -->
+  </div>
+
+  <script>
+    async function loadAssets() {
+      const container = document.getElementById('assets');
+      try {
+        const res = await fetch('/api/assets');
+        if (!res.ok) throw new Error('Failed to load assets');
+        const list = await res.json();
+        if (list.length === 0) {
+          container.innerHTML = '<p class="text-muted">No public assets have been published yet.</p>';
+          return;
+        }
+        container.innerHTML = list.map(a => `
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title">${a.title}</h5>
+                <p class="card-text">${a.description || ''}</p>
+              </div>
+              <div class="card-footer text-muted small">
+                By ${a.user?.username || 'unknown'}
+              </div>
+            </div>
+          </div>
+        `).join('\n');
+      } catch (err) {
+        container.innerHTML = '<div class="alert alert-danger">Unable to load assets at this time. Please try again later.</div>';
+        console.error(err);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadAssets);
+  </script>
+{% endblock %}

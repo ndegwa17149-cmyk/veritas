@@ -1,0 +1,38 @@
+# Production Requirements
+# Install with: pip install -r requirements-prod.txt
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+
+# ORM and Database
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9  # PostgreSQL driver
+
+# Authentication & Security
+pyjwt==2.8.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Data Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Configuration & Environment
+python-dotenv==1.0.0
+
+# Utilities
+tenacity==8.2.3
+requests==2.31.0
+
+# Django (Frontend)
+django>=4.2,<5.0
+
+# Production Monitoring (Optional)
+# sentry-sdk==1.40.0
+# prometheus-client==0.19.0
+
+# Database Connection Pooling
+sqlalchemy-utils==0.41.1

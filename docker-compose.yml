@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: veritas
+      POSTGRES_USER: veritas_user
+      POSTGRES_PASSWORD: veritas_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U veritas_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: >
+      bash -c "cd django_frontend &&
+               python manage.py migrate &&
+               cd .. &&
+               gunicorn --bind 0.0.0.0:8000 --workers 4 django_frontend.frontend_project.wsgi:application"
+    ports:
+      - "8000:8000"
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      DEBUG: ${DEBUG:-False}
+      DATABASE_URL: postgresql://veritas_user:veritas_password@db:5432/veritas
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://localhost:8000
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./web/staticfiles:/app/staticfiles:ro
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: veritas-network
