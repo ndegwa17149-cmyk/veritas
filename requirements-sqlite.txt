@@ -1,0 +1,29 @@
+# Alternative Requirements (SQLite for Render)
+# Use this if PostgreSQL drivers cause issues
+# Install with: pip install -r requirements-sqlite.txt
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+gunicorn==21.2.0
+
+# Web Framework
+django==4.2.7
+djangorestframework==3.14.0
+
+# ORM and Database (SQLite - no compilation needed)
+sqlalchemy==2.0.23
+alembic==1.12.1
+
+# Authentication & Security
+pyjwt==2.8.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Data Validation
+pydantic==2.5.0
+
+# Additional production packages
+whitenoise==6.6.0  # Static files for Django
+dj-database-url==2.1.0  # Database URL parsing
+python-decouple==3.8  # Environment variables

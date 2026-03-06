@@ -50,7 +50,22 @@
 
 ### Deployment Options
 
-#### Option 1: Cloud Platforms (Recommended)
+**Render (Easiest Option):**
+```bash
+# 1. Connect your GitHub repository to Render
+# 2. Create a new Web Service
+# 3. Use these settings:
+#    - Runtime: Python 3
+#    - Build Command: pip install -r requirements-prod.txt
+#    - Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+# 4. Add environment variables:
+#    - DATABASE_URL (Render provides this automatically)
+#    - SECRET_KEY (generate a strong random key)
+#    - DEBUG=False
+#    - CORS_ORIGINS=https://your-frontend-domain.com
+#    - ALLOWED_HOSTS=your-app-name.onrender.com
+```
+
 **Heroku:**
 ```bash
 heroku create veritas-app
@@ -65,6 +80,69 @@ heroku run python django_frontend/manage.py migrate
 - Configure Web app with WSGI file
 - Set environment variables in Web tab
 - Point domain to PythonAnywhere servers
+
+#### Render Deployment (Step-by-Step)
+
+**Why Render?** Render is free for small projects, has built-in PostgreSQL, and handles SSL certificates automatically.
+
+**Step 1: Prepare Your Code**
+```bash
+# Ensure you have these files in your repository:
+# - requirements-prod.txt (updated for Render)
+# - render.yaml (optional, for multi-service setup)
+# - Dockerfile.render (Render-specific Dockerfile)
+```
+
+**Step 2: Deploy on Render**
+
+1. **Connect Repository:**
+   - Go to [render.com](https://render.com)
+   - Sign up/Login with GitHub
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+
+2. **Configure Service:**
+   - **Name:** veritas-api (or your choice)
+   - **Runtime:** Python 3
+   - **Build Command:** `pip install -r requirements-prod.txt`
+   - **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+3. **Environment Variables:**
+   ```
+   DATABASE_URL=postgresql://... (Render provides this)
+   SECRET_KEY=your-generated-secret-key-here
+   DEBUG=False
+   CORS_ORIGINS=https://your-frontend-domain.com
+   ALLOWED_HOSTS=your-app-name.onrender.com
+   ```
+
+4. **Deploy:**
+   - Click "Create Web Service"
+   - Render will build and deploy automatically
+   - Your API will be available at: `https://your-app-name.onrender.com`
+
+**Step 3: Database Setup**
+- Render automatically creates a PostgreSQL database
+- The `DATABASE_URL` environment variable is set automatically
+- Run migrations (one-time): `python django_frontend/manage.py migrate`
+
+**Step 4: Custom Domain (Optional)**
+- In Render dashboard, go to your service settings
+- Add custom domain
+- Update `ALLOWED_HOSTS` and `CORS_ORIGINS` environment variables
+
+**Troubleshooting Render Issues:**
+- **psycopg2 build fails:** Use `requirements-sqlite.txt` instead (SQLite database)
+- **Build timeout:** Reduce dependencies or use the fallback requirements
+- **Port issues:** Render uses `$PORT` environment variable automatically
+- **Static files:** Django static files are handled by Whitenoise in production
+
+**Alternative: Use SQLite for Render**
+If PostgreSQL compilation fails, you can use SQLite:
+
+1. Change build command to: `pip install -r requirements-sqlite.txt`
+2. Add environment variable: `USE_SQLITE=true`
+3. Database will be file-based (suitable for demos/small apps)
 
 **AWS (EC2 + RDS):**
 ```bash
