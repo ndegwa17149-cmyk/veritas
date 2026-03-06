@@ -13,7 +13,7 @@ djangorestframework==3.14.0
 # ORM and Database
 sqlalchemy==2.0.23
 alembic==1.12.1
-psycopg2cffi==2.9.0  # Pure Python PostgreSQL driver (no compilation needed)
+psycopg[binary]==3.1.12  # Pure Python PostgreSQL driver (no compilation needed)
 
 # Authentication & Security
 pyjwt==2.8.0
