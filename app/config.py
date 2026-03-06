@@ -1,13 +1,14 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+import secrets
 
 class Settings(BaseSettings):
     """
     Application configuration loaded from environment variables.
 
-    Security: SECRET_KEY must be 32+ bytes. Fails loudly if missing.
+    Security: SECRET_KEY defaults to a generated value but should be set explicitly in production.
     """
-    SECRET_KEY: str
+    SECRET_KEY: str = None  # Will be generated if not provided
     DATABASE_URL: str = "sqlite:///./veritas.db"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     ALGORITHM: str = "HS256"
@@ -26,18 +27,22 @@ class Settings(BaseSettings):
     )
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Validate SECRET_KEY length (prevents weak keys)
+        
+        # Generate SECRET_KEY if not provided
+        if not self.SECRET_KEY:
+            self.SECRET_KEY = secrets.token_urlsafe(32)
+        
+        # Validate SECRET_KEY length
         if len(self.SECRET_KEY) < 32:
             raise ValueError(
-                "SECRET_KEY must be at least 32 characters."
+                "SECRET_KEY must be at least 32 characters. "
                 "Generate with: openssl rand -hex 32"
             )
 
-        if not self.DATABASE_URL.startswith("sqlite:///"):
-            raise ValueError(
-                "Phase 1 supports SQLite only."
-                "DATABASE_URL must start with sqlite:///"
-            )
+        # Allow both SQLite and PostgreSQL in production
+        # Only validate that a database URL is set
+        if not self.DATABASE_URL:
+            raise ValueError("DATABASE_URL must be set")
 
         if not (5 <= self.ACCESS_TOKEN_EXPIRE_MINUTES <= 120):
             raise ValueError(
