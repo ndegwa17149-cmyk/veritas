@@ -27,9 +27,6 @@ pydantic==2.5.0
 whitenoise==6.6.0  # Static files for Django
 dj-database-url==2.1.0  # Database URL parsing
 python-decouple==3.8  # Environment variables
-
-# CORS
-python-cors==1.0.0
 pydantic-settings==2.1.0
 
 # Configuration & Environment
